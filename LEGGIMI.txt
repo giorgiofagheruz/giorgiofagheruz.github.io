@@ -1,0 +1,15 @@
+DOLOMITI SOARING METEO — PACCHETTO PWA PER INSTALLAZIONE RAPIDA SU ANDROID
+
+Contenuto del pacchetto:
+- index.html     : Applicazione web progressiva (PWA) per Valbelluna e Dolomiti Venete
+- manifest.json  : Configurazione per avvio a schermo intero, nome e icona su Android
+- sw.js          : Service Worker per caching dell'interfaccia e gestione offline/online
+- icon-192.png   : Icona app 192x192 px
+- icon-512.png   : Icona app 512x512 px
+
+Come installare su Android via browser (senza APK):
+1. Estrai i file in una cartella sul PC.
+2. Pubblica la cartella su un hosting HTTPS gratuito (es. Netlify Drop: https://app.netlify.com/drop oppure GitHub Pages).
+3. Apri il link HTTPS ottenuto con Google Chrome sul telefono Android.
+4. Tocca il menu in alto a destra (⋮) -> "Installa app" oppure "Aggiungi a schermata Home".
+5. Avvia l'app direttamente dall'icona creata nella schermata Home.
