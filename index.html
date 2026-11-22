@@ -1,4 +1,3 @@
-HTML
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -41,16 +40,12 @@ HTML
       background-color: var(--bg-outer);
       color: var(--text);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
 
-    /* Smartphone: larghezza piena senza deformazioni */
-    .app-9-16 {
+    /* Vista Smartphone: 100% larghezza e altezza schermo senza cornice 9:16 */
+    .app-shell {
       width: 100%;
       height: 100dvh;
-      margin: 0 auto;
       background: linear-gradient(180deg, #0d172a 0%, var(--bg-app) 45%, #090f1b 100%);
       display: flex;
       flex-direction: column;
@@ -58,10 +53,18 @@ HTML
       position: relative;
     }
 
-    /* PC / schermi larghi: cornice 9:16 centrata */
-    @media (min-width: 600px) {
-      .app-9-16 {
+    /* Vista Desktop / Tablet larghi: contenitore verticale 9:16 centrato */
+    @media (min-width: 768px) {
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .app-shell {
+        width: auto;
         max-width: calc(100dvh * 9 / 16);
+        height: 100dvh;
         aspect-ratio: 9 / 16;
         border-left: 1px solid var(--border);
         border-right: 1px solid var(--border);
@@ -133,18 +136,29 @@ HTML
       transform: scale(0.97);
     }
 
-    .sectors {
+    .bar-row {
       display: flex;
       gap: 7px;
-      padding: 10px 16px;
+      padding: 9px 16px;
       overflow-x: auto;
       scrollbar-width: none;
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
+      align-items: center;
     }
 
-    .sectors::-webkit-scrollbar {
+    .bar-row::-webkit-scrollbar {
       display: none;
+    }
+
+    .bar-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-right: 2px;
     }
 
     .chip {
@@ -187,6 +201,7 @@ HTML
       justify-content: space-between;
       align-items: center;
       margin-bottom: 8px;
+      gap: 8px;
     }
 
     .card-title {
@@ -204,6 +219,7 @@ HTML
       border-radius: 999px;
       background: rgba(34, 197, 94, 0.15);
       color: #4ade80;
+      white-space: nowrap;
     }
 
     .badge.warn {
@@ -258,7 +274,7 @@ HTML
   </style>
 </head>
 <body>
-  <main class="app-9-16" id="app">
+  <main class="app-shell" id="app">
     <header>
       <div class="brand">
         <img src="./icon-192.png" alt="Logo aliante" onerror="this.style.display='none'" />
@@ -273,7 +289,15 @@ HTML
       </div>
     </header>
 
-    <nav class="sectors" id="sectorBar" aria-label="Settori di volo">
+    <nav class="bar-row" id="dayBar" aria-label="Selezione giorno">
+      <span class="bar-label">Giorno</span>
+      <button class="chip active" data-day="0" id="dayBtn0">Oggi</button>
+      <button class="chip" data-day="1" id="dayBtn1">Domani</button>
+      <button class="chip" data-day="2" id="dayBtn2">+2 Giorni</button>
+    </nav>
+
+    <nav class="bar-row" id="sectorBar" aria-label="Settori di volo">
+      <span class="bar-label">Settore</span>
       <button class="chip active" data-sector="valbelluna">Valbelluna (LIDB)</button>
       <button class="chip" data-sector="schiara">Schiara</button>
       <button class="chip" data-sector="civetta">Civetta</button>
@@ -284,25 +308,25 @@ HTML
     <section class="content" id="mainContent">
       <div class="card">
         <div class="card-head">
-          <span class="card-title">Potenziale Termico &amp; Base Nube</span>
-          <span class="badge" id="soaringBadge">Analisi Attiva</span>
+          <span class="card-title" id="thermalCardTitle">Potenziale Termico &amp; Base Nube</span>
+          <span class="badge" id="soaringBadge">Caricamento...</span>
         </div>
         <div class="metrics">
           <div class="metric">
             <div class="metric-label">Base Cumuli stimata</div>
-            <div class="metric-val" id="cloudBase">2.350 m MSL</div>
+            <div class="metric-val" id="cloudBase">--</div>
           </div>
           <div class="metric">
-            <div class="metric-label">Salita termica media</div>
-            <div class="metric-val" id="climbRate">+2,1 m/s</div>
+            <div class="metric-label">Stima salita termica</div>
+            <div class="metric-val" id="climbRate">--</div>
           </div>
           <div class="metric">
-            <div class="metric-label">Vento in quota (2.500 m)</div>
-            <div class="metric-val" id="windHigh">280° · 12 kt</div>
+            <div class="metric-label">Vento in quota (700 hPa)</div>
+            <div class="metric-val" id="windHigh">--</div>
           </div>
           <div class="metric">
             <div class="metric-label">Zero termico</div>
-            <div class="metric-val" id="freezingLevel">2.750 m MSL</div>
+            <div class="metric-val" id="freezingLevel">--</div>
           </div>
         </div>
       </div>
@@ -310,19 +334,19 @@ HTML
       <div class="card">
         <div class="card-head">
           <span class="card-title">Profilo Verticale &amp; Gradiente</span>
-          <span class="badge warn" id="lapseBadge">Gradiente -0,82°C/100m</span>
+          <span class="badge warn" id="lapseBadge">Gradiente --</span>
         </div>
         <div class="sounding-row">
-          <span>Suolo / Valle (390 m)</span>
-          <strong id="tGround">18°C · Dew 9°C</strong>
+          <span id="labelGround">Suolo / Valle</span>
+          <strong id="tGround">--</strong>
         </div>
         <div class="sounding-row">
-          <span>Quota intermedia (1.500 m)</span>
-          <strong id="tMid">9°C · Dew 2°C</strong>
+          <span id="labelMid">Livello 850 hPa</span>
+          <strong id="tMid">--</strong>
         </div>
         <div class="sounding-row">
-          <span>Quota alta (2.500 m)</span>
-          <strong id="tHigh">1°C · Dew -5°C</strong>
+          <span id="labelHigh">Livello 700 hPa</span>
+          <strong id="tHigh">--</strong>
         </div>
       </div>
 
@@ -331,10 +355,10 @@ HTML
           <span class="card-title">Note Operativa Volo a Vela</span>
         </div>
         <p class="status-note" id="briefingNote">
-          Finestra termica favorevole tra le 11:30 e le 16:45 locali. Buona convezione sul versante sud e rientro agevole verso Belluno.
+          Recupero dati meteorologici da Open-Meteo per il settore e il giorno selezionati...
         </p>
         <p class="status-note" id="lastUpdate" style="margin-top:8px;">
-          Ultimo aggiornamento: ora
+          Ultimo aggiornamento: in attesa
         </p>
       </div>
     </section>
@@ -343,112 +367,270 @@ HTML
   <script>
     const SECTORS = {
       valbelluna: {
-        sub: "Valbelluna · LIDB · Quota base 390 m",
-        badge: "Analisi Attiva",
-        warn: false,
-        base: "2.350 m MSL",
-        climb: "+2,1 m/s",
-        wind: "280° · 12 kt",
-        zero: "2.750 m MSL",
-        lapse: "Gradiente -0,82°C/100m",
-        ground: "18°C · Dew 9°C",
-        mid: "9°C · Dew 2°C",
-        high: "1°C · Dew -5°C",
-        note: "Finestra termica favorevole tra le 11:30 e le 16:45 locali. Buona convezione sul versante sud e rientro agevole verso Belluno."
+        sub: "Valbelluna · LIDB",
+        lat: 46.1167,
+        lon: 12.2478,
+        valleyAlt: 390,
+        fallback: {
+          base: 2350, climb: 2.1, windDir: 280, windKt: 12, zero: 2750,
+          lapse: -0.82, groundT: 18, groundDew: 9, midAlt: 1500, midT: 9, midDew: 2,
+          highAlt: 3000, highT: 1, highDew: -5
+        }
       },
       schiara: {
-        sub: "Gruppo della Schiara · Quota creste 2.300 m",
-        badge: "Attenzione Creste",
-        warn: true,
-        base: "2.450 m MSL",
-        climb: "+2,4 m/s",
-        wind: "300° · 16 kt",
-        zero: "2.800 m MSL",
-        lapse: "Gradiente -0,86°C/100m",
-        ground: "18°C · Dew 8°C",
-        mid: "8°C · Dew 1°C",
-        high: "0°C · Dew -6°C",
-        note: "Termiche vivaci sui canaloni meridionali, ma possibile turbolenza meccanica sottovento con vento da NW oltre 15 kt."
+        sub: "Gruppo della Schiara",
+        lat: 46.185,
+        lon: 12.215,
+        valleyAlt: 550,
+        fallback: {
+          base: 2450, climb: 2.4, windDir: 300, windKt: 16, zero: 2800,
+          lapse: -0.86, groundT: 18, groundDew: 8, midAlt: 1500, midT: 8, midDew: 1,
+          highAlt: 3000, highT: 0, highDew: -6
+        }
       },
       civetta: {
-        sub: "Civetta / Val di Zoldo · Parete NW",
-        badge: "Buon Potenziale",
-        warn: false,
-        base: "2.500 m MSL",
-        climb: "+2,3 m/s",
-        wind: "260° · 10 kt",
-        zero: "2.850 m MSL",
-        lapse: "Gradiente -0,84°C/100m",
-        ground: "17°C · Dew 8°C",
-        mid: "8°C · Dew 0°C",
-        high: "1°C · Dew -5°C",
-        note: "Buona continuità di salita lungo i versanti soleggiati e aggancio facile verso i settori centrali dolomitici."
+        sub: "Civetta / Val di Zoldo",
+        lat: 46.378,
+        lon: 12.053,
+        valleyAlt: 1180,
+        fallback: {
+          base: 2500, climb: 2.3, windDir: 260, windKt: 10, zero: 2850,
+          lapse: -0.84, groundT: 17, groundDew: 8, midAlt: 1500, midT: 8, midDew: 0,
+          highAlt: 3000, highT: 1, highDew: -5
+        }
       },
       marmolada: {
-        sub: "Marmolada · Quota massima 3.343 m",
-        badge: "Quota Elevata",
-        warn: true,
-        base: "2.600 m MSL",
-        climb: "+2,6 m/s",
-        wind: "290° · 18 kt",
-        zero: "2.700 m MSL",
-        lapse: "Gradiente -0,88°C/100m",
-        ground: "16°C · Dew 7°C",
-        mid: "7°C · Dew -1°C",
-        high: "-1°C · Dew -7°C",
-        note: "Potenziale termico elevato ma quota in prossimità dello zero termico e vento sostenuto in alta quota: monitorare copertura nuvolosa."
+        sub: "Marmolada",
+        lat: 46.433,
+        lon: 11.853,
+        valleyAlt: 1450,
+        fallback: {
+          base: 2600, climb: 2.6, windDir: 290, windKt: 18, zero: 2700,
+          lapse: -0.88, groundT: 16, groundDew: 7, midAlt: 1500, midT: 7, midDew: -1,
+          highAlt: 3000, highT: -1, highDew: -7
+        }
       },
       primiero: {
-        sub: "Valle del Primiero · Pale di San Martino",
-        badge: "Analisi Attiva",
-        warn: false,
-        base: "2.300 m MSL",
-        climb: "+1,9 m/s",
-        wind: "270° · 11 kt",
-        zero: "2.700 m MSL",
-        lapse: "Gradiente -0,79°C/100m",
-        ground: "17°C · Dew 9°C",
-        mid: "9°C · Dew 2°C",
-        high: "1°C · Dew -4°C",
-        note: "Condizioni regolari con termiche più dolci in mattinata e sviluppo cumulifero ordinato nel primo pomeriggio."
+        sub: "Valle del Primiero",
+        lat: 46.175,
+        lon: 11.83,
+        valleyAlt: 720,
+        fallback: {
+          base: 2300, climb: 1.9, windDir: 270, windKt: 11, zero: 2700,
+          lapse: -0.79, groundT: 17, groundDew: 9, midAlt: 1500, midT: 9, midDew: 2,
+          highAlt: 3000, highT: 1, highDew: -4
+        }
       }
     };
 
+    const forecastCache = new Map();
     let currentSector = "valbelluna";
+    let currentDay = 0;
 
-    function renderSector(key) {
-      currentSector = key;
-      const d = SECTORS[key];
-      document.getElementById("sectorSubtitle").textContent = d.sub;
-      const badge = document.getElementById("soaringBadge");
-      badge.textContent = d.badge;
-      badge.className = d.warn ? "badge warn" : "badge";
-
-      document.getElementById("cloudBase").textContent = d.base;
-      document.getElementById("climbRate").textContent = d.climb;
-      document.getElementById("windHigh").textContent = d.wind;
-      document.getElementById("freezingLevel").textContent = d.zero;
-      document.getElementById("lapseBadge").textContent = d.lapse;
-      document.getElementById("tGround").textContent = d.ground;
-      document.getElementById("tMid").textContent = d.mid;
-      document.getElementById("tHigh").textContent = d.high;
-      document.getElementById("briefingNote").textContent = d.note;
-
+    function getTargetDateISO(offset) {
       const now = new Date();
-      document.getElementById("lastUpdate").textContent =
-        "Ultimo aggiornamento: " + now.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+      const target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
+      const y = target.getFullYear();
+      const m = String(target.getMonth() + 1).padStart(2, "0");
+      const d = String(target.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
     }
 
-    document.querySelectorAll(".chip").forEach((btn) => {
+    function formatDayLabel(offset) {
+      const now = new Date();
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
+      const weekday = d.toLocaleDateString("it-IT", { weekday: "short" });
+      const dayNum = d.getDate();
+      if (offset === 0) return `Oggi (${weekday} ${dayNum})`;
+      if (offset === 1) return `Domani (${weekday} ${dayNum})`;
+      return `${weekday} ${dayNum}`;
+    }
+
+    function initDayLabels() {
+      document.getElementById("dayBtn0").textContent = formatDayLabel(0);
+      document.getElementById("dayBtn1").textContent = formatDayLabel(1);
+      document.getElementById("dayBtn2").textContent = formatDayLabel(2);
+    }
+
+    function fmtMeters(val) {
+      return Math.round(val).toLocaleString("it-IT") + " m MSL";
+    }
+
+    function avg(arr) {
+      if (!arr.length) return null;
+      return arr.reduce((a, b) => a + b, 0) / arr.length;
+    }
+
+    function computeDayMetrics(sectorObj, hourly, dayOffset) {
+      const targetDate = getTargetDateISO(dayOffset);
+      const times = hourly.time || [];
+      const dayIndices = [];
+      const daytimeIndices = [];
+
+      times.forEach((iso, idx) => {
+        if (!iso.startsWith(targetDate)) return;
+        dayIndices.push(idx);
+        const hour = Number(iso.slice(11, 13));
+        if (hour >= 10 && hour <= 17) daytimeIndices.push(idx);
+      });
+
+      const idxs = daytimeIndices.length ? daytimeIndices : dayIndices;
+      if (!idxs.length) return { data: sectorObj.fallback, live: false };
+
+      const pick = (arr, i) => (Array.isArray(arr) && typeof arr[i] === "number" ? arr[i] : null);
+
+      const t2m = avg(idxs.map((i) => pick(hourly.temperature_2m, i)).filter((v) => v !== null));
+      const td2m = avg(idxs.map((i) => pick(hourly.dew_point_2m, i)).filter((v) => v !== null));
+      const zero = avg(idxs.map((i) => pick(hourly.freezing_level_height, i)).filter((v) => v !== null));
+      const windSpeed = avg(idxs.map((i) => pick(hourly.wind_speed_700hPa, i)).filter((v) => v !== null));
+      const windDir = avg(idxs.map((i) => pick(hourly.wind_direction_700hPa, i)).filter((v) => v !== null));
+
+      const t850 = avg(idxs.map((i) => pick(hourly.temperature_850hPa, i)).filter((v) => v !== null));
+      const td850 = avg(idxs.map((i) => pick(hourly.dew_point_850hPa, i)).filter((v) => v !== null));
+      const h850 = avg(idxs.map((i) => pick(hourly.geopotential_height_850hPa, i)).filter((v) => v !== null));
+
+      const t700 = avg(idxs.map((i) => pick(hourly.temperature_700hPa, i)).filter((v) => v !== null));
+      const td700 = avg(idxs.map((i) => pick(hourly.dew_point_700hPa, i)).filter((v) => v !== null));
+      const h700 = avg(idxs.map((i) => pick(hourly.geopotential_height_700hPa, i)).filter((v) => v !== null));
+
+      const elev = typeof hourly.elevation === "number" ? hourly.elevation : sectorObj.valleyAlt;
+      const spread = (t2m !== null && td2m !== null) ? Math.max(0.5, t2m - td2m) : 8.5;
+      const base = elev + spread * 125;
+
+      const deltaH = (h700 !== null && h850 !== null && h700 > h850) ? (h700 - h850) : 1500;
+      const deltaT = (t700 !== null && t850 !== null) ? (t700 - t850) : -9.5;
+      const lapse = Number(((deltaT / deltaH) * 100).toFixed(2));
+      const climb = Number(Math.max(0.4, Math.min(4.5, (Math.abs(lapse) - 0.45) * 5.2)).toFixed(1));
+      const windKt = windSpeed !== null ? Math.round(windSpeed * 0.539957) : sectorObj.fallback.windKt;
+
+      return {
+        live: true,
+        data: {
+          base,
+          climb,
+          windDir: windDir !== null ? Math.round(windDir) : sectorObj.fallback.windDir,
+          windKt,
+          zero: zero !== null ? zero : sectorObj.fallback.zero,
+          lapse,
+          groundAlt: Math.round(elev),
+          groundT: t2m !== null ? Math.round(t2m) : sectorObj.fallback.groundT,
+          groundDew: td2m !== null ? Math.round(td2m) : sectorObj.fallback.groundDew,
+          midAlt: h850 !== null ? Math.round(h850) : 1500,
+          midT: t850 !== null ? Math.round(t850) : sectorObj.fallback.midT,
+          midDew: td850 !== null ? Math.round(td850) : sectorObj.fallback.midDew,
+          highAlt: h700 !== null ? Math.round(h700) : 3000,
+          highT: t700 !== null ? Math.round(t700) : sectorObj.fallback.highT,
+          highDew: td700 !== null ? Math.round(td700) : sectorObj.fallback.highDew
+        }
+      };
+    }
+
+    async function loadSectorForecast(sectorKey, forceRefresh = false) {
+      if (!forceRefresh && forecastCache.has(sectorKey)) {
+        return forecastCache.get(sectorKey);
+      }
+
+      const s = SECTORS[sectorKey];
+      const url = new URL("https://api.open-meteo.com/v1/forecast");
+      url.searchParams.set("latitude", String(s.lat));
+      url.searchParams.set("longitude", String(s.lon));
+      url.searchParams.set("timezone", "Europe/Rome");
+      url.searchParams.set("forecast_days", "3");
+      url.searchParams.set("hourly", [
+        "temperature_2m",
+        "dew_point_2m",
+        "freezing_level_height",
+        "wind_speed_700hPa",
+        "wind_direction_700hPa",
+        "temperature_850hPa",
+        "dew_point_850hPa",
+        "geopotential_height_850hPa",
+        "temperature_700hPa",
+        "dew_point_700hPa",
+        "geopotential_height_700hPa"
+      ].join(","));
+
+      try {
+        const res = await fetch(url.toString());
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const json = await res.json();
+        const payload = {
+          hourly: Object.assign({}, json.hourly, { elevation: json.elevation }),
+          fetchedAt: new Date(),
+          isLive: true
+        };
+        forecastCache.set(sectorKey, payload);
+        return payload;
+      } catch (_err) {
+        const cached = forecastCache.get(sectorKey);
+        if (cached) return cached;
+        return { hourly: null, fetchedAt: new Date(), isLive: false };
+      }
+    }
+
+    async function renderView(forceRefresh = false) {
+      const s = SECTORS[currentSector];
+      const dayLabel = formatDayLabel(currentDay);
+
+      document.getElementById("sectorSubtitle").textContent = `${s.sub} · ${dayLabel}`;
+      document.getElementById("thermalCardTitle").textContent = `Potenziale Termico · ${dayLabel}`;
+      document.getElementById("soaringBadge").textContent = "Aggiornamento...";
+
+      const payload = await loadSectorForecast(currentSector, forceRefresh);
+      const computed = payload.hourly
+        ? computeDayMetrics(s, payload.hourly, currentDay)
+        : { data: s.fallback, live: false };
+
+      const d = computed.data;
+      const isLive = computed.live && payload.isLive;
+      const warn = d.windKt >= 16 || Math.abs(d.lapse) >= 0.9;
+
+      const badge = document.getElementById("soaringBadge");
+      badge.textContent = isLive ? (warn ? "Vento / Gradiente" : "Dati Open-Meteo") : "Stima Locale";
+      badge.className = warn ? "badge warn" : "badge";
+
+      document.getElementById("cloudBase").textContent = fmtMeters(d.base);
+      document.getElementById("climbRate").textContent = `+${d.climb.toFixed(1).replace(".", ",")} m/s`;
+      document.getElementById("windHigh").textContent = `${d.windDir}° · ${d.windKt} kt`;
+      document.getElementById("freezingLevel").textContent = fmtMeters(d.zero);
+      document.getElementById("lapseBadge").textContent = `Gradiente ${d.lapse.toFixed(2).replace(".", ",")}°C/100m`;
+
+      document.getElementById("labelGround").textContent = `Suolo (${d.groundAlt || s.valleyAlt} m)`;
+      document.getElementById("labelMid").textContent = `850 hPa (~${d.midAlt || 1500} m)`;
+      document.getElementById("labelHigh").textContent = `700 hPa (~${d.highAlt || 3000} m)`;
+
+      document.getElementById("tGround").textContent = `${d.groundT}°C · Dew ${d.groundDew}°C`;
+      document.getElementById("tMid").textContent = `${d.midT}°C · Dew ${d.midDew}°C`;
+      document.getElementById("tHigh").textContent = `${d.highT}°C · Dew ${d.highDew}°C`;
+
+      document.getElementById("briefingNote").textContent = isLive
+        ? `Valori medi diurni (10:00–17:00) per ${dayLabel} su ${s.sub}: base cumuli stimata a ${fmtMeters(d.base)}, vento a 700 hPa da ${d.windDir}° a ${d.windKt} kt e zero termico a ${fmtMeters(d.zero)}.`
+        : `Connessione meteo non disponibile: visualizzazione valori di riferimento su ${s.sub} per ${dayLabel}.`;
+
+      const timeStr = payload.fetchedAt.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+      document.getElementById("lastUpdate").textContent = `Ultimo aggiornamento: ${timeStr}`;
+    }
+
+    document.querySelectorAll("#dayBar .chip").forEach((btn) => {
       btn.addEventListener("click", () => {
-        document.querySelectorAll(".chip").forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll("#dayBar .chip").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
-        renderSector(btn.dataset.sector);
+        currentDay = Number(btn.dataset.day);
+        renderView(false);
+      });
+    });
+
+    document.querySelectorAll("#sectorBar .chip").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#sectorBar .chip").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentSector = btn.dataset.sector;
+        renderView(false);
       });
     });
 
     document.getElementById("refreshBtn").addEventListener("click", () => {
-      renderSector(currentSector);
+      renderView(true);
     });
 
     let deferredPrompt = null;
@@ -474,7 +656,8 @@ HTML
       });
     }
 
-    renderSector("valbelluna");
+    initDayLabels();
+    renderView(false);
   </script>
 </body>
 </html>
