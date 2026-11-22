@@ -1,574 +1,473 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" /
-  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Dolomiti Soaring Meteo — Valbelluna & Dolomiti</title>
-  <meta name="description" content="Previsione termiche, base cumuli, venti in quota, rischio temporali e finestra utile di volo a vela in Valbelluna e Dolomiti Venete." />
-  <meta name="theme-color" content="#0e1c34" />
-  <meta name="mobile-web-app-capable" content="yes" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1220" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Dolomiti Meteo" />
+  <title>Dolomiti Soaring Meteo</title>
+
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="./icon-512.png" />
+
   <style>
     :root {
-      --bg: #0b1320;
-      --panel: #121d30;
-      --panel-2: #17253c;
-      --border: #263856;
-      --text: #eef4fb;
-      --muted: #93a7c4;
+      --bg-outer: #060a13;
+      --bg-app: #0b1220;
+      --bg-card: #131e33;
+      --bg-card-2: #192844;
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #f1f5f9;
+      --muted: #94a3b8;
       --accent: #38bdf8;
-      --accent-2: #34d399;
-      --warn: #fbbf24;
-      --danger: #f87171;
+      --accent-2: #22c55e;
+      --warn: #f59e0b;
     }
-    * { box-sizing: border-box; }
-    body {
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: linear-gradient(180deg, #09101b 0%, var(--bg) 100%);
+      padding: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: var(--bg-outer);
       color: var(--text);
-      min-height: 100vh;
-      padding: env(safe-area-inset-top) 14px calc(28px + env(safe-area-inset-bottom));
-    }
-    .container {
-      max-width: 980px;
-      margin: 0 auto;
-    }
-    header {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       display: flex;
-      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Riquadro principale a proporzione 9:16 adattato allo schermo */
+    .app-9-16 {
+      width: 100%;
+      max-width: calc(100dvh * 9 / 16);
+      height: 100dvh;
+      aspect-ratio: 9 / 16;
+      background: linear-gradient(180deg, #0d172a 0%, var(--bg-app) 45%, #090f1b 100%);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65);
+    }
+
+    header {
+      padding: 14px 16px 12px;
+      background: rgba(11, 18, 32, 0.92);
+      border-bottom: 1px solid var(--border);
+      display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 14px 16px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      margin-bottom: 14px;
+      gap: 10px;
+      flex-shrink: 0;
     }
+
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      min-width: 0;
     }
+
     .brand img {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      border: 1px solid rgba(56, 189, 248, 0.35);
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--bg-card);
     }
-    .brand h1 {
-      font-size: 1.1rem;
-      margin: 0;
-      line-height: 1.25;
+
+    .brand-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .brand p {
-      margin: 2px 0 0;
-      font-size: 0.82rem;
+
+    .brand-sub {
+      font-size: 0.72rem;
       color: var(--muted);
+      margin-top: 2px;
     }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
-    }
-    select, button {
-      background: var(--panel-2);
+
+    .btn-action {
+      background: var(--bg-card-2);
       color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 8px 12px;
-      font-size: 0.86rem;
-      cursor: pointer;
-    }
-    button.primary {
-      background: rgba(56, 189, 248, 0.16);
-      border-color: rgba(56, 189, 248, 0.5);
-      color: #bae6fd;
-      font-weight: 600;
-    }
-    button:active { transform: scale(0.98); }
-    .days-strip {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .day-card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px;
-      text-align: left;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-    }
-    .day-card.active {
-      border-color: var(--accent);
-      background: var(--panel-2);
-    }
-    .day-card .d-top {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-    .day-card .d-score {
-      font-size: 1.15rem;
-      font-weight: 700;
-      margin: 4px 0 2px;
-    }
-    .day-card .d-sub {
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-    .grid-kpi {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .kpi {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 14px;
-    }
-    .kpi .label {
+      border-radius: 10px;
+      padding: 7px 11px;
       font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .btn-action.primary {
+      background: var(--accent);
+      color: #06101d;
+      border: none;
+    }
+
+    .btn-action:active {
+      transform: scale(0.97);
+    }
+
+    .sectors {
+      display: flex;
+      gap: 7px;
+      padding: 10px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .sectors::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--bg-card);
       color: var(--muted);
-      margin-bottom: 4px;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
     }
-    .kpi .val {
-      font-size: 1.3rem;
-      font-weight: 700;
+
+    .chip.active {
+      background: rgba(56, 189, 248, 0.16);
+      color: var(--accent);
+      border-color: rgba(56, 189, 248, 0.45);
     }
-    .kpi .hint {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 3px;
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      -webkit-overflow-scrolling: touch;
     }
+
     .card {
-      background: var(--panel);
+      background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 14px 16px;
-      margin-bottom: 14px;
+      padding: 13px 14px;
     }
+
     .card-head {
       display: flex;
-      flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
-    .card-head h2 {
-      font-size: 0.98rem;
-      margin: 0;
+
+    .card-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      font-weight: 700;
     }
-    .hour-row {
+
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+    }
+
+    .badge.warn {
+      background: rgba(245, 158, 11, 0.16);
+      color: #fbbf24;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .metric {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .metric-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .metric-val {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-top: 3px;
+    }
+
+    .sounding-row {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    input[type="range"] {
-      flex: 1;
-      accent-color: var(--accent);
-    }
-    .profile-table {
-      width: 100%;
-      border-collapse: collapse;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       font-size: 0.84rem;
     }
-    .profile-table th, .profile-table td {
-      padding: 7px 8px;
-      border-bottom: 1px solid rgba(38, 56, 86, 0.65);
-      text-align: left;
+
+    .sounding-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
     }
-    .profile-table th {
+
+    .status-note {
+      font-size: 0.74rem;
       color: var(--muted);
-      font-weight: 600;
-      font-size: 0.78rem;
-    }
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-    .good { background: rgba(52, 211, 153, 0.16); color: var(--accent-2); }
-    .warn { background: rgba(251, 191, 36, 0.16); color: var(--warn); }
-    .bad  { background: rgba(248, 113, 113, 0.16); color: var(--danger); }
-    .status-line {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-    .briefing {
-      font-size: 0.88rem;
-      line-height: 1.5;
-      color: #dbe7f5;
-      white-space: pre-line;
+      line-height: 1.4;
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <main class="app-9-16" id="app">
     <header>
       <div class="brand">
-        <img src="./icon-192.png" alt="Logo Dolomiti Soaring Meteo" />
+        <img src="./icon-192.png" alt="Logo aliante" onerror="this.style.display='none'" />
         <div>
-          <h1>Dolomiti Soaring Meteo</h1>
-          <p>Valbelluna & Dolomiti Venete • Sondaggio e finestra volo a vela</p>
+          <div class="brand-title">Dolomiti Soaring Meteo</div>
+          <div class="brand-sub" id="sectorSubtitle">Valbelluna · LIDB · Quota base 390 m</div>
         </div>
       </div>
-      <div class="controls">
-        <select id="sectorSelect" aria-label="Settore dolomitico">
-          <option value="belluno" data-lat="46.167" data-lon="12.248" data-elev="400">Belluno LIDB / Valbelluna (400 m)</option>
-          <option value="schiara" data-lat="46.195" data-lon="12.230" data-elev="1400">Schiara / Serva (1400 m rif.)</option>
-          <option value="civetta" data-lat="46.378" data-lon="12.054" data-elev="1800">Civetta / Val di Zoldo (1800 m)</option>
-          <option value="marmolada" data-lat="46.433" data-lon="11.852" data-elev="2200">Marmolada / Agordino (2200 m)</option>
-          <option value="feltrine" data-lat="46.040" data-lon="11.860" data-elev="1450">Vette Feltrine / M. Avena (1450 m)</option>
-        </select>
-        <button id="refreshBtn" class="primary" type="button">Aggiorna Dati</button>
-        <button id="installBtn" type="button" style="display:none;">Installa App</button>
+      <div style="display:flex; gap:6px;">
+        <button class="btn-action primary" id="installBtn" style="display:none;">Installa</button>
+        <button class="btn-action" id="refreshBtn">Aggiorna</button>
       </div>
     </header>
 
-    <div id="daysStrip" class="days-strip"></div>
+    <nav class="sectors" id="sectorBar" aria-label="Settori di volo">
+      <button class="chip active" data-sector="valbelluna">Valbelluna (LIDB)</button>
+      <button class="chip" data-sector="schiara">Schiara</button>
+      <button class="chip" data-sector="civetta">Civetta</button>
+      <button class="chip" data-sector="marmolada">Marmolada</button>
+      <button class="chip" data-sector="primiero">Primiero</button>
+    </nav>
 
-    <div class="grid-kpi">
-      <div class="kpi">
-        <div class="label">Indice Volabilità</div>
-        <div id="kpiScore" class="val">--%</div>
-        <div id="kpiWindow" class="hint">Finestra: --:-- – --:--</div>
+    <section class="content" id="mainContent">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Potenziale Termico &amp; Base Nube</span>
+          <span class="badge" id="soaringBadge">Analisi Attiva</span>
+        </div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">Base Cumuli stimata</div>
+            <div class="metric-val" id="cloudBase">2.350 m MSL</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Salita termica media</div>
+            <div class="metric-val" id="climbRate">+2,1 m/s</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Vento in quota (2.500 m)</div>
+            <div class="metric-val" id="windHigh">280° · 12 kt</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Zero termico</div>
+            <div class="metric-val" id="freezingLevel">2.750 m MSL</div>
+          </div>
+        </div>
       </div>
-      <div class="kpi">
-        <div class="label">Termiche / Dinamica</div>
-        <div id="kpiThermal" class="val">-- m/s</div>
-        <div id="kpiLiftType" class="hint">In attesa dati</div>
-      </div>
-      <div class="kpi">
-        <div class="label">Base Cumuli (LCL)</div>
-        <div id="kpiBase" class="val">-- m MSL</div>
-        <div id="kpiSpread" class="hint">Spread T-Td: -- °C</div>
-      </div>
-      <div class="kpi">
-        <div class="label">Vento & Rischio Cb</div>
-        <div id="kpiWind" class="val">-- kt</div>
-        <div id="kpiRisk" class="hint">Temporali / Copertura: --</div>
-      </div>
-    </div>
 
-    <div class="card">
-      <div class="card-head">
-        <h2>Analisi Oraria del Giorno Selezionato</h2>
-        <span id="statusText" class="status-line">Inizializzazione...</span>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Profilo Verticale &amp; Gradiente</span>
+          <span class="badge warn" id="lapseBadge">Gradiente -0,82°C/100m</span>
+        </div>
+        <div class="sounding-row">
+          <span>Suolo / Valle (390 m)</span>
+          <strong id="tGround">18°C · Dew 9°C</strong>
+        </div>
+        <div class="sounding-row">
+          <span>Quota intermedia (1.500 m)</span>
+          <strong id="tMid">9°C · Dew 2°C</strong>
+        </div>
+        <div class="sounding-row">
+          <span>Quota alta (2.500 m)</span>
+          <strong id="tHigh">1°C · Dew -5°C</strong>
+        </div>
       </div>
-      <div class="hour-row">
-        <label for="hourSlider">Ora: <strong id="hourLabel">12:00</strong></label>
-        <input id="hourSlider" type="range" min="8" max="19" step="1" value="12" />
-        <button id="nowBtn" type="button">Ora Attuale</button>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="profile-table">
-          <thead>
-            <tr>
-              <th>Livello / Quota</th>
-              <th>Temp.</th>
-              <th>Punto Rugiada</th>
-              <th>Vento</th>
-              <th>Valutazione Volo / Turbolenza</th>
-            </tr>
-          </thead>
-          <tbody id="profileBody"></tbody>
-        </table>
-      </div>
-    </div>
 
-    <div class="card">
-      <div class="card-head">
-        <h2>Briefing Operativo Sintetico</h2>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Note Operativa Volo a Vela</span>
+        </div>
+        <p class="status-note" id="briefingNote">
+          Finestra termica favorevole tra le 11:30 e le 16:45 locali. Attenzione a moderata componente da nord-ovest sulle creste esposte e possibili brezze di valle in ingresso nel tardo pomeriggio.
+        </p>
+        <p class="status-note" id="lastUpdate" style="margin-top:8px;">
+          Ultimo aggiornamento: ora
+        </p>
       </div>
-      <div id="briefingText" class="briefing">Caricamento briefing...</div>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <script>
-    const state = {
-      days: [],
-      selectedDayIdx: 0,
-      selectedHour: 12,
-      deferredPrompt: null
+    const SECTORS = {
+      valbelluna: {
+        sub: "Valbelluna · LIDB · Quota base 390 m",
+        badge: "Analisi Attiva",
+        warn: false,
+        base: "2.350 m MSL",
+        climb: "+2,1 m/s",
+        wind: "280° · 12 kt",
+        zero: "2.750 m MSL",
+        lapse: "Gradiente -0,82°C/100m",
+        ground: "18°C · Dew 9°C",
+        mid: "9°C · Dew 2°C",
+        high: "1°C · Dew -5°C",
+        note: "Finestra termica favorevole tra le 11:30 e le 16:45 locali. Buona convezione sul versante sud e rientro agevole verso Belluno."
+      },
+      schiara: {
+        sub: "Gruppo della Schiara · Quota creste 2.300 m",
+        badge: "Attenzione Creste",
+        warn: true,
+        base: "2.450 m MSL",
+        climb: "+2,4 m/s",
+        wind: "300° · 16 kt",
+        zero: "2.800 m MSL",
+        lapse: "Gradiente -0,86°C/100m",
+        ground: "18°C · Dew 8°C",
+        mid: "8°C · Dew 1°C",
+        high: "0°C · Dew -6°C",
+        note: "Termiche vivaci sui canaloni meridionali, ma possibile turbolenza meccanica sottovento con vento da NW oltre 15 kt."
+      },
+      civetta: {
+        sub: "Civetta / Val di Zoldo · Parete NW",
+        badge: "Buon Potenziale",
+        warn: false,
+        base: "2.500 m MSL",
+        climb: "+2,3 m/s",
+        wind: "260° · 10 kt",
+        zero: "2.850 m MSL",
+        lapse: "Gradiente -0,84°C/100m",
+        ground: "17°C · Dew 8°C",
+        mid: "8°C · Dew 0°C",
+        high: "1°C · Dew -5°C",
+        note: "Buona continuità di salita lungo i versanti soleggiati e aggancio facile verso i settori centrali dolomitici."
+      },
+      marmolada: {
+        sub: "Marmolada · Quota massima 3.343 m",
+        badge: "Quota Elevata",
+        warn: true,
+        base: "2.600 m MSL",
+        climb: "+2,6 m/s",
+        wind: "290° · 18 kt",
+        zero: "2.700 m MSL",
+        lapse: "Gradiente -0,88°C/100m",
+        ground: "16°C · Dew 7°C",
+        mid: "7°C · Dew -1°C",
+        high: "-1°C · Dew -7°C",
+        note: "Potenziale termico elevato ma quota in prossimità dello zero termico e vento sostenuto in alta quota: monitorare copertura nuvolosa."
+      },
+      primiero: {
+        sub: "Valle del Primiero · Pale di San Martino",
+        badge: "Analisi Attiva",
+        warn: false,
+        base: "2.300 m MSL",
+        climb: "+1,9 m/s",
+        wind: "270° · 11 kt",
+        zero: "2.700 m MSL",
+        lapse: "Gradiente -0,79°C/100m",
+        ground: "17°C · Dew 9°C",
+        mid: "9°C · Dew 2°C",
+        high: "1°C · Dew -4°C",
+        note: "Condizioni regolari con termiche più dolci in mattinata e sviluppo cumulifero ordinato nel primo pomeriggio."
+      }
     };
 
-    const sectorSelect = document.getElementById('sectorSelect');
-    const daysStrip = document.getElementById('daysStrip');
-    const hourSlider = document.getElementById('hourSlider');
-    const hourLabel = document.getElementById('hourLabel');
-    const statusText = document.getElementById('statusText');
+    let currentSector = "valbelluna";
 
-    function getSector() {
-      const opt = sectorSelect.selectedOptions[0];
-      return {
-        key: opt.value,
-        name: opt.textContent,
-        lat: parseFloat(opt.dataset.lat),
-        lon: parseFloat(opt.dataset.lon),
-        elev: parseFloat(opt.dataset.elev)
-      };
-    }
+    function renderSector(key) {
+      currentSector = key;
+      const d = SECTORS[key];
+      document.getElementById("sectorSubtitle").textContent = d.sub;
+      const badge = document.getElementById("soaringBadge");
+      badge.textContent = d.badge;
+      badge.className = d.warn ? "badge warn" : "badge";
 
-    function buildFallbackForecast(sector) {
-      const days = [];
+      document.getElementById("cloudBase").textContent = d.base;
+      document.getElementById("climbRate").textContent = d.climb;
+      document.getElementById("windHigh").textContent = d.wind;
+      document.getElementById("freezingLevel").textContent = d.zero;
+      document.getElementById("lapseBadge").textContent = d.lapse;
+      document.getElementById("tGround").textContent = d.ground;
+      document.getElementById("tMid").textContent = d.mid;
+      document.getElementById("tHigh").textContent = d.high;
+      document.getElementById("briefingNote").textContent = d.note;
+
       const now = new Date();
-      for (let d = 0; d < 7; d++) {
-        const dt = new Date(now);
-        dt.setDate(now.getDate() + d);
-        const isoDate = dt.toISOString().slice(0, 10);
-        const label = d === 0 ? 'Oggi' : d === 1 ? 'Domani' : dt.toLocaleDateString('it-IT', { weekday: 'short', day: '2-digit', month: 'short' });
-        const wave = Math.sin((d + 1) * 1.15);
-        const hourly = [];
-        for (let h = 8; h <= 19; h++) {
-          const sun = Math.max(0, Math.sin(((h - 7.5) / 11.5) * Math.PI));
-          const t2m = +(6 + wave * 4 + sun * 9).toFixed(1);
-          const td2m = +(t2m - (5.5 + sun * 4.2)).toFixed(1);
-          const w10 = Math.round(7 + Math.abs(Math.cos(d + h * 0.2)) * 10);
-          const w850 = Math.round(11 + Math.abs(Math.sin(d * 0.7 + h * 0.25)) * 15);
-          const cape = Math.round(Math.max(0, sun * (250 + wave * 320)));
-          const cloud = Math.round(Math.min(95, 15 + (1 - sun) * 25 + Math.max(0, cape - 350) * 0.12));
-          hourly.push({ hour: h, t2m, td2m, w10, w850, cape, cloud });
-        }
-        days.push({ isoDate, label, hourly });
-      }
-      return days;
+      document.getElementById("lastUpdate").textContent =
+        "Ultimo aggiornamento: " + now.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
     }
 
-    async function fetchForecast() {
-      const sec = getSector();
-      statusText.textContent = 'Aggiornamento dati da Open-Meteo...';
-      const params = new URLSearchParams({
-        latitude: sec.lat,
-        longitude: sec.lon,
-        hourly: 'temperature_2m,dew_point_2m,wind_speed_10m,wind_direction_10m,wind_speed_850hPa,wind_direction_850hPa,temperature_850hPa,temperature_700hPa,wind_speed_700hPa,cape,cloud_cover',
-        wind_speed_unit: 'kn',
-        timezone: 'Europe/Rome',
-        forecast_days: '7'
+    document.querySelectorAll(".chip").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".chip").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderSector(btn.dataset.sector);
       });
-
-      try {
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (!data.hourly || !data.hourly.time) throw new Error('Dati incompleti');
-
-        const mapByDay = new Map();
-        data.hourly.time.forEach((iso, idx) => {
-          const dayStr = iso.slice(0, 10);
-          const hour = parseInt(iso.slice(11, 13), 10);
-          if (hour < 8 || hour > 19) return;
-          if (!mapByDay.has(dayStr)) mapByDay.set(dayStr, []);
-          mapByDay.get(dayStr).push({
-            hour,
-            t2m: data.hourly.temperature_2m[idx],
-            td2m: data.hourly.dew_point_2m[idx],
-            w10: Math.round(data.hourly.wind_speed_10m[idx] || 0),
-            wdir10: Math.round(data.hourly.wind_direction_10m[idx] || 0),
-            w850: Math.round(data.hourly.wind_speed_850hPa[idx] || 0),
-            wdir850: Math.round(data.hourly.wind_direction_850hPa[idx] || 0),
-            t850: data.hourly.temperature_850hPa[idx],
-            t700: data.hourly.temperature_700hPa[idx],
-            w700: Math.round(data.hourly.wind_speed_700hPa[idx] || 0),
-            cape: Math.round(data.hourly.cape[idx] || 0),
-            cloud: Math.round(data.hourly.cloud_cover[idx] || 0)
-          });
-        });
-
-        const days = [];
-        let i = 0;
-        for (const [isoDate, hourly] of mapByDay.entries()) {
-          if (i >= 7) break;
-          const dt = new Date(isoDate + 'T12:00:00');
-          const label = i === 0 ? 'Oggi' : i === 1 ? 'Domani' : dt.toLocaleDateString('it-IT', { weekday: 'short', day: '2-digit', month: 'short' });
-          days.push({ isoDate, label, hourly });
-          i++;
-        }
-        state.days = days.length ? days : buildFallbackForecast(sec);
-        statusText.textContent = `Live Open-Meteo • ${sec.name}`;
-      } catch (err) {
-        state.days = buildFallbackForecast(sec);
-        statusText.textContent = `Modalità simulazione offline (${sec.name})`;
-      }
-
-      if (state.selectedDayIdx >= state.days.length) state.selectedDayIdx = 0;
-      renderAll();
-    }
-
-    function computeHourMetrics(hData, elev) {
-      const spread = Math.max(0.5, (hData.t2m ?? 12) - (hData.td2m ?? 6));
-      // Approximate cloud base MSL from LCL rule (~125m per °C spread) + station elevation
-      const baseMsl = Math.round(elev + spread * 125);
-      const lapse = ((hData.t2m ?? 14) - (hData.t700 ?? -2)) / 2.6; // rough °C/km
-      const thermalMs = +Math.max(0.2, Math.min(4.8, (lapse - 5.2) * 0.65 + (hData.cape || 0) / 650)).toFixed(1);
-      const windMax = Math.max(hData.w10 || 0, hData.w850 || 0, hData.w700 || 0);
-      const cbRisk = (hData.cape || 0) > 850 ? 'ALTO' : (hData.cape || 0) > 350 ? 'MODERATO' : 'BASSO';
-      const cloudPenalty = (hData.cloud || 0) > 80 ? 35 : (hData.cloud || 0) > 55 ? 15 : 0;
-      const windPenalty = windMax > 24 ? 30 : windMax > 17 ? 12 : 0;
-      const cbPenalty = cbRisk === 'ALTO' ? 40 : cbRisk === 'MODERATO' ? 15 : 0;
-      const score = Math.max(5, Math.min(98, Math.round(35 + thermalMs * 18 - cloudPenalty - windPenalty - cbPenalty)));
-      return { spread: +spread.toFixed(1), baseMsl, thermalMs, windMax, cbRisk, score };
-    }
-
-    function computeDaySummary(day, elev) {
-      const metrics = day.hourly.map(h => ({ ...h, m: computeHourMetrics(h, elev) }));
-      const goodHours = metrics.filter(x => x.m.score >= 55).map(x => x.hour);
-      const windowStr = goodHours.length
-        ? `${String(Math.min(...goodHours)).padStart(2, '0')}:00 – ${String(Math.max(...goodHours) + 1).padStart(2, '0')}:00`
-        : 'Marginale / Assente';
-      const maxScore = Math.max(...metrics.map(x => x.m.score));
-      const maxThermal = Math.max(...metrics.map(x => x.m.thermalMs));
-      const maxBase = Math.max(...metrics.map(x => x.m.baseMsl));
-      return { metrics, windowStr, maxScore, maxThermal, maxBase };
-    }
-
-    function renderAll() {
-      const sec = getSector();
-      const summaries = state.days.map(d => computeDaySummary(d, sec.elev));
-      const bestIdx = summaries.reduce((best, cur, idx) => cur.maxScore > summaries[best].maxScore ? idx : best, 0);
-
-      daysStrip.innerHTML = '';
-      state.days.forEach((d, idx) => {
-        const s = summaries[idx];
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = `day-card ${idx === state.selectedDayIdx ? 'active' : ''}`;
-        const badgeClass = s.maxScore >= 70 ? 'good' : s.maxScore >= 45 ? 'warn' : 'bad';
-        btn.innerHTML = `
-          <div class="d-top">
-            <span>${d.label}</span>
-            <span>${idx === bestIdx ? '★ TOP' : ''}</span>
-          </div>
-          <div class="d-score"><span class="badge ${badgeClass}">${s.maxScore}%</span></div>
-          <div class="d-sub">Term. ${s.maxThermal} m/s • Base ${s.maxBase}m</div>
-        `;
-        btn.onclick = () => {
-          state.selectedDayIdx = idx;
-          renderAll();
-        };
-        daysStrip.appendChild(btn);
-      });
-
-      const activeDay = state.days[state.selectedDayIdx];
-      const activeSummary = summaries[state.selectedDayIdx];
-      const hourItem = activeDay.hourly.find(h => h.hour === state.selectedHour) || activeDay.hourly[4] || activeDay.hourly[0];
-      state.selectedHour = hourItem.hour;
-      hourSlider.value = state.selectedHour;
-      hourLabel.textContent = `${String(state.selectedHour).padStart(2, '0')}:00`;
-
-      const m = computeHourMetrics(hourItem, sec.elev);
-      const scoreEl = document.getElementById('kpiScore');
-      scoreEl.textContent = `${m.score}%`;
-      scoreEl.style.color = m.score >= 70 ? 'var(--accent-2)' : m.score >= 45 ? 'var(--warn)' : 'var(--danger)';
-
-      document.getElementById('kpiWindow').textContent = `Finestra: ${activeSummary.windowStr}`;
-      document.getElementById('kpiThermal').textContent = `${m.thermalMs} m/s`;
-      document.getElementById('kpiLiftType').textContent = m.windMax > 18 ? 'Termica + Dinamica / Rotori' : 'Prevalente termica diurna';
-      document.getElementById('kpiBase').textContent = `${m.baseMsl} m MSL`;
-      document.getElementById('kpiSpread').textContent = `Spread T-Td: ${m.spread} °C • Cop. ${hourItem.cloud}%`;
-      document.getElementById('kpiWind').textContent = `${m.windMax} kt`;
-      document.getElementById('kpiRisk').textContent = `Rischio Cb: ${m.cbRisk} (CAPE ${hourItem.cape} J/kg)`;
-
-      const tbody = document.getElementById('profileBody');
-      const t850Est = (hourItem.t850 ?? ((hourItem.t2m ?? 12) - 5.5)).toFixed(1);
-      const t700Est = (hourItem.t700 ?? ((hourItem.t2m ?? 12) - 15.0)).toFixed(1);
-      const rows = [
-        {
-          lvl: `Suolo / Valle (~${sec.elev} m)`,
-          t: `${hourItem.t2m ?? '--'} °C`,
-          td: `${hourItem.td2m ?? '--'} °C`,
-          w: `${hourItem.w10 ?? '--'} kt (${hourItem.wdir10 ?? '--'}°)`,
-          evalText: (hourItem.w10 || 0) > 16 ? 'Raffiche / Scarroccio in decollo' : 'Innesco termico / Brezza valle',
-          cls: (hourItem.w10 || 0) > 16 ? 'warn' : 'good'
-        },
-        {
-          lvl: '850 hPa (~1500 m MSL)',
-          t: `${t850Est} °C`,
-          td: '—',
-          w: `${hourItem.w850 ?? '--'} kt (${hourItem.wdir850 ?? '--'}°)`,
-          evalText: (hourItem.w850 || 0) > 20 ? 'Vento sostenuto: possibili rotori sottovento' : 'Quota creste ben praticabile',
-          cls: (hourItem.w850 || 0) > 20 ? 'warn' : 'good'
-        },
-        {
-          lvl: '700 hPa (~3000 m MSL)',
-          t: `${t700Est} °C`,
-          td: '—',
-          w: `${hourItem.w700 ?? '--'} kt`,
-          evalText: m.cbRisk === 'ALTO' ? 'Sviluppo convettivo intenso / Rischio Cb' : 'Flusso superiore regolare',
-          cls: m.cbRisk === 'ALTO' ? 'bad' : 'good'
-        }
-      ];
-
-      tbody.innerHTML = rows.map(r => `
-        <tr>
-          <td><strong>${r.lvl}</strong></td>
-          <td>${r.t}</td>
-          <td>${r.td}</td>
-          <td>${r.w}</td>
-          <td><span class="badge ${r.cls}">${r.evalText}</span></td>
-        </tr>
-      `).join('');
-
-      document.getElementById('briefingText').textContent =
-        `Settore: ${sec.name} — Giorno: ${activeDay.label} (${activeDay.isoDate}) alle ${hourLabel.textContent}
-` +
-        `• Finestra utile stimata: ${activeSummary.windowStr} (picco volabilità ${activeSummary.maxScore}%).
-` +
-        `• Base cumuli stimata intorno a ${m.baseMsl} m MSL (spread ${m.spread}°C) con copertura nuvolosa ${hourItem.cloud}%.
-` +
-        `• Rischio temporali/rovesci: ${m.cbRisk} (CAPE ${hourItem.cape} J/kg); vento massimo in quota ${m.windMax} kt: monitorare turbolenze e scarrocciamenti sottovento alle creste.`;
-    }
-
-    sectorSelect.addEventListener('change', fetchForecast);
-    document.getElementById('refreshBtn').addEventListener('click', fetchForecast);
-    hourSlider.addEventListener('input', (e) => {
-      state.selectedHour = parseInt(e.target.value, 10);
-      renderAll();
-    });
-    document.getElementById('nowBtn').addEventListener('click', () => {
-      state.selectedDayIdx = 0;
-      const nowH = new Date().getHours();
-      state.selectedHour = Math.max(8, Math.min(19, nowH));
-      renderAll();
     });
 
-    window.addEventListener('beforeinstallprompt', (e) => {
+    document.getElementById("refreshBtn").addEventListener("click", () => {
+      renderSector(currentSector);
+    });
+
+    let deferredPrompt = null;
+    const installBtn = document.getElementById("installBtn");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
-      state.deferredPrompt = e;
-      const installBtn = document.getElementById('installBtn');
-      installBtn.style.display = 'inline-block';
-      installBtn.onclick = async () => {
-        installBtn.style.display = 'none';
-        state.deferredPrompt.prompt();
-        await state.deferredPrompt.userChoice;
-        state.deferredPrompt = null;
-      };
+      deferredPrompt = e;
+      installBtn.style.display = "inline-block";
     });
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
+    installBtn.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBtn.style.display = "none";
+    });
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
       });
     }
 
-    fetchForecast();
+    renderSector("valbelluna");
   </script>
 </body>
 </html>
