@@ -1,19 +1,14 @@
+JSON
 {
-  "name": "Dolomiti Soaring Meteo — Valbelluna",
+  "name": "Dolomiti Soaring Meteo",
   "short_name": "Dolomiti Meteo",
-  "description": "Sondaggio termodinamico, termiche, base nubi, venti in quota e previsioni volo a vela per Valbelluna e Dolomiti Venete (LIDB).",
+  "description": "Analisi termica e previsioni per volo a vela in Valbelluna e Dolomiti",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0b1320",
-  "theme_color": "#0e1c34",
-  "lang": "it-IT",
-  "categories": [
-    "weather",
-    "sports",
-    "navigation"
-  ],
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
   "icons": [
     {
       "src": "./icon-192.png",
