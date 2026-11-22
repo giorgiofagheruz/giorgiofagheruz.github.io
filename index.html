@@ -1,3 +1,4 @@
+HTML
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -23,7 +24,6 @@
       --text: #f1f5f9;
       --muted: #94a3b8;
       --accent: #38bdf8;
-      --accent-2: #22c55e;
       --warn: #f59e0b;
     }
 
@@ -46,20 +46,27 @@
       align-items: center;
     }
 
-    /* Riquadro principale a proporzione 9:16 adattato allo schermo */
+    /* Smartphone: larghezza piena senza deformazioni */
     .app-9-16 {
       width: 100%;
-      max-width: calc(100dvh * 9 / 16);
       height: 100dvh;
-      aspect-ratio: 9 / 16;
+      margin: 0 auto;
       background: linear-gradient(180deg, #0d172a 0%, var(--bg-app) 45%, #090f1b 100%);
-      border-left: 1px solid var(--border);
-      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       overflow: hidden;
       position: relative;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65);
+    }
+
+    /* PC / schermi larghi: cornice 9:16 centrata */
+    @media (min-width: 600px) {
+      .app-9-16 {
+        max-width: calc(100dvh * 9 / 16);
+        aspect-ratio: 9 / 16;
+        border-left: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65);
+      }
     }
 
     header {
@@ -324,7 +331,7 @@
           <span class="card-title">Note Operativa Volo a Vela</span>
         </div>
         <p class="status-note" id="briefingNote">
-          Finestra termica favorevole tra le 11:30 e le 16:45 locali. Attenzione a moderata componente da nord-ovest sulle creste esposte e possibili brezze di valle in ingresso nel tardo pomeriggio.
+          Finestra termica favorevole tra le 11:30 e le 16:45 locali. Buona convezione sul versante sud e rientro agevole verso Belluno.
         </p>
         <p class="status-note" id="lastUpdate" style="margin-top:8px;">
           Ultimo aggiornamento: ora
